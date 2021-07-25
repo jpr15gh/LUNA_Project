@@ -1,0 +1,38 @@
+version: '3'
+services:
+  app:
+    image: registry.gitlab.propulsion-home.ch/full-stack/batch-16-may-2021/luna-group-project/sagittarius/luna:latest
+    env_file:
+      - ./env/prod.env
+    command: "sh /scripts/run.sh"
+    volumes:
+      - static-files:/backend/static-files
+      - media-files:/backend/media-files
+      - frontend:/frontend/build
+    depends_on:
+      - postgres
+
+  postgres:
+    image: postgres:latest
+    env_file:
+      - ./env/prod.env
+    volumes:
+      - database:/var/lib/postgresql/data
+
+  nginx:
+    image: nginx:latest
+    ports:
+      - 80:80
+      - 443:443
+    volumes:
+      - ./nginx/default.conf:/etc/nginx/conf.d/default.conf
+      - static-files:/static-files
+      - media-files:/media-files
+      - frontend:/frontend
+      - /etc/letsencrypt:/etc/letsencrypt
+
+volumes:
+  database:
+  static-files:
+  media-files:
+  frontend:
